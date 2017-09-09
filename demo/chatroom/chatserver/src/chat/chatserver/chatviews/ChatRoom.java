@@ -1,6 +1,6 @@
 package chat.chatserver.chatviews;
 
-import chat.chatserver.Main;
+import chat.chatserver.ChatServerMain;
 import chat.chatviews.ChatMessage;
 import chat.chatviews.monitor.RoomInfo;
 import limax.provider.TemporaryView;
@@ -58,7 +58,7 @@ public final class ChatRoom extends chat.chatserver.chatviews._ChatRoom {
 				return;
 			final long toid = Long.parseLong(params.substring(0, index).trim());
 			final String msg = params.substring(index + 1).trim();
-			if (Main.checkAndRunCommand(sessionid, msg))
+			if (ChatServerMain.checkAndRunCommand(sessionid, msg))
 				return;
 			if (-1L == toid) {
 				ChatRoom.this.setLastmessage(new ChatMessage(msg, sessionid));

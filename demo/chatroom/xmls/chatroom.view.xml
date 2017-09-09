@@ -46,6 +46,19 @@
 		<variable name="lastmessage" type="ChatMessage" />
 	</view>
 
+	<!-- 测试隧道协议 -->
+	<protocol name="TestTunnel"  type="200" maxsize="0"> 
+		<variable name="tid" type="long" />
+		<variable name="tname" type="string" />
+		<variable name="tdata" type="binary" />
+	</protocol>
+
+	<protocol name="STestTunnel"  type="201" maxsize="0"> 
+		<variable name="tid" type="long" />
+		<variable name="tname" type="string" />
+		<variable name="tdata" type="ChatMessage" />
+	</protocol>
+
 	<namespace name="monitor">
 
 		<monitorset name="RoomInfo" mapKeyType="long">

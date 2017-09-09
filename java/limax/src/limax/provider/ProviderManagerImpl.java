@@ -90,9 +90,11 @@ class ProviderManagerImpl extends AbstractRpcContext
 					return;
 				}
 				try {
-					toswitcher.tunnel(new Tunnel(config.getProviderId(), sessionid, label,
-							new TunnelData(config.getTunnelMac(), config.getTunnelKey(),
-									config.getTunnelKeyExpireTime(), label, data).marshal(new OctetsStream())));
+//					toswitcher.tunnel(new Tunnel(config.getProviderId(), sessionid, label,
+//							new TunnelData(config.getTunnelMac(), config.getTunnelKey(),
+//									config.getTunnelKeyExpireTime(), label, data).marshal(new OctetsStream())));
+					//不加密
+					toswitcher.tunnel(new Tunnel(config.getProviderId(), sessionid, label, data));
 				} catch (Exception e) {
 					if (Trace.isErrorEnabled())
 						Trace.error("tunnel sessionid = " + sessionid + " label = " + label + " data = "
@@ -536,14 +538,17 @@ class ProviderManagerImpl extends AbstractRpcContext
 	}
 
 	private void onTunnel(long sessionid, int label, Octets data) throws Exception {
-		TunnelData tunnelData;
-		try {
-			tunnelData = new TunnelData(config.getTunnelKey(), label, data);
-		} catch (TunnelException e) {
-			((TunnelSupport) listener).onException(sessionid, label, e);
-			return;
-		}
-		((TunnelSupport) listener).onTunnel(sessionid, label, tunnelData.get());
+//		TunnelData tunnelData;
+//		try {
+//			tunnelData = new TunnelData(config.getTunnelKey(), label, data);
+//		} catch (TunnelException e) {
+//			((TunnelSupport) listener).onException(sessionid, label, e);
+//			return;
+//		}
+//		((TunnelSupport) listener).onTunnel(sessionid, label, tunnelData.get());
+		
+		
+		((TunnelSupport) listener).onTunnel(sessionid, label, data);
 	}
 
 	final void process(Tunnel protocol) {

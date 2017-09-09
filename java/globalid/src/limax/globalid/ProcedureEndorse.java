@@ -17,14 +17,14 @@ public final class ProcedureEndorse implements Procedure {
 		NamesEndorse arg = rpc.getArgument();
 		if (arg.tid != 0) {
 			if (arg.type == NamesEndorse.COMMIT) {
-				Main.endorse(arg.tid).forEach(e -> {
+				GlobalMain.endorse(arg.tid).forEach(e -> {
 					if (e.getValue())
 						table.Names.insert(e.getKey());
 					else
 						table.Names.delete(e.getKey());
 				});
 			}
-			Main.unlock(rpc.getTransport(), arg.tid);
+			GlobalMain.unlock(rpc.getTransport(), arg.tid);
 		}
 		rpc.getResult().status = NameResponse.OK;
 		try {

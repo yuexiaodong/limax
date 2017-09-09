@@ -2,24 +2,33 @@ package chat.chatserver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.chatserver.chatviews.CommonInfo;
+import chat.chatserver.chatviews.STestTunnel;
+import chat.chatserver.chatviews.TestTunnel;
 import chat.chatviews.RoomChatHallInfo;
 import chat.chatviews.ViewChatRoomInfo;
 import chat.chatviews.monitor.RoomInfo;
+import limax.codec.Octets;
+import limax.codec.OctetsStream;
 import limax.net.Config;
+import limax.net.Engine;
 import limax.net.Manager;
 import limax.net.ServerManager;
 import limax.net.Transport;
 import limax.provider.GlobalId;
 import limax.provider.ProcedureHelper;
 import limax.provider.ProviderListener;
+import limax.provider.ProviderTransport;
+import limax.provider.TunnelSupport;
 import limax.util.Pair;
 import limax.util.Trace;
 import limax.zdb.Procedure;
 
-public class SessionManager implements ProviderListener {
+public class SessionManager implements ProviderListener, TunnelSupport {
 
 	static private final SessionManager instance = new SessionManager();
 
@@ -35,11 +44,13 @@ public class SessionManager implements ProviderListener {
 	public ServerManager getManager() {
 		return manager;
 	}
+	
+	private Map<Long, Transport> transports = new HashMap<>();
 
 	private static void insertDefaultChatrooms() {
 		final Procedure.Result r = Procedure.call(ProcedureHelper.nameProcedure("insertDefaultChatrooms", () -> {
-			GlobalId.create(Main.groupHallNames, "test");
-			GlobalId.create(Main.groupRoomNames, "test");
+			GlobalId.create(ChatServerMain.groupHallNames, "test");
+			GlobalId.create(ChatServerMain.groupRoomNames, "test");
 			final Pair<Long, xbean.ChatHallInfo> hallinfo = table.Chathalls.insert();
 			hallinfo.getValue().setName("test");
 			table.Hallnamecache.insert(hallinfo.getValue().getName(), hallinfo.getKey());
@@ -122,12 +133,23 @@ public class SessionManager implements ProviderListener {
 	public void onTransportAdded(Transport transport) throws Exception {
 		if (Trace.isInfoEnabled())
 			Trace.info("onTransportAdded " + transport);
+		if(transport instanceof ProviderTransport) {
+			ProviderTransport impl = (ProviderTransport) transport;
+			long sid  = ((ProviderTransport)transport).getSessionId();
+			Transport toswitch = impl.getToSwictherTransport();
+			transports.put(sid, toswitch);
+		}
 	}
+	
 
 	@Override
 	public void onTransportRemoved(Transport transport) throws Exception {
 		if (Trace.isInfoEnabled())
 			Trace.info("onTransportRemoved " + transport);
+		if(transport instanceof ProviderTransport) {
+			long sid  = ((ProviderTransport)transport).getSessionId();
+			transports.remove(sid);
+		}
 	}
 
 	@Override
@@ -135,6 +157,29 @@ public class SessionManager implements ProviderListener {
 		if (Trace.isInfoEnabled())
 			Trace.info("onTransportDuplicate " + transport);
 		manager.close(transport);
+	}
+
+	@Override
+	public void onTunnel(long sessionid, int label, Octets data) throws Exception {
+		//根据label找到自定义协议的类型，然后转发出去
+		TestTunnel p = new TestTunnel();
+		p.unmarshal(OctetsStream.wrap(data));
+		Engine.getProtocolExecutor().execute(p);
+		
+		
+		//给客户端相应
+		int pvid = 100;
+		STestTunnel snd = new STestTunnel();
+		snd.tid = 0;
+		snd.tname = "form server";
+		snd.tdata.msg = "message from s";
+		snd.tdata.user = 10000000;
+		
+		limax.provider.providerendpoint.Tunnel t  = new limax.provider.providerendpoint.Tunnel(pvid, sessionid, label, snd.marshal(new OctetsStream()));
+		Transport trans  = transports.get(sessionid);
+		if(trans != null) {
+			t.send(trans);
+		}
 	}
 
 }

@@ -24,4 +24,6 @@ public interface ProviderTransport extends Transport {
 	boolean isWebSocket();
 
 	boolean isStateless();
+	
+	public Transport getToSwictherTransport();
 }

@@ -23,16 +23,22 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import limax.codec.CodecException;
+import limax.codec.Octets;
+import limax.codec.OctetsStream;
 import limax.endpoint.Endpoint;
 import limax.endpoint.EndpointConfig;
 import limax.endpoint.EndpointListener;
 import limax.endpoint.EndpointManager;
+import limax.endpoint.TunnelSender;
+import limax.endpoint.providerendpoint.Tunnel;
 import limax.net.Config;
 import limax.net.Manager;
 import limax.net.SizePolicyException;
 import limax.net.Transport;
+import limax.util.Trace;
 import chat.chatclient.chatviews.ChatRoom;
 import chat.chatclient.chatviews.CommonInfo;
+import chat.chatclient.chatviews.TestTunnel;
 import chat.chatclient.chatviews.UserInfo;
 import chat.chatviews.ChatMessage;
 import chat.chatviews.ErrorCodes;
@@ -140,7 +146,7 @@ public class MainFrame {
 		if (lf.isDoLogin()) {
 			btnLogin.setEnabled(false);
 
-			final EndpointListener listener = new EndpointListener() {
+			final EndpointListener listener = new ChatEndpointListener() {
 
 				@Override
 				public void onAbort(Transport transport) throws Exception {
@@ -152,6 +158,8 @@ public class MainFrame {
 				@Override
 				public void onManagerInitialized(Manager manager, Config config) {
 					endpointManager = (EndpointManager) manager;
+					long sid = endpointManager.getSessionId(); //-1
+					Trace.log(Trace.DEBUG, "session = " + sid);
 				}
 
 				@Override
@@ -161,6 +169,9 @@ public class MainFrame {
 
 				@Override
 				public void onTransportAdded(Transport transport) throws Exception {
+					long sid = endpointManager.getSessionId();
+					Trace.log(Trace.DEBUG, "session = " + sid);
+					
 					CommonInfo.getInstance().registerListener("halls", e -> updateHalls(e.getValue()));
 					UserInfo.getInstance().registerListener("name",
 							e -> mainFrame.setTitle("chat client [" + ((UserInfo.name) e.getValue()).nickname + "]"));
@@ -204,6 +215,23 @@ public class MainFrame {
 						e.printStackTrace();
 					JOptionPane.showMessageDialog(mainFrame,
 							"onErrorOccured = " + source + " code = " + code + " e  = " + e);
+				}
+
+				@Override
+				public void onTunnel(int providerid, int label, Octets data) throws Exception {
+					 // 客户端收到隧道数据后处理
+					System.out.println("client onTunnel pvid = " + providerid + "label = "+ label);
+				}
+
+				@Override
+				public void registerTunnelSender(TunnelSender sender) {
+					 //建立连接后注册sender
+					System.out.println("start registerTunnelSender...");
+//					try {
+//						sender.send(providerId, 0, new OctetsStream());
+//					} catch (InstantiationException | ClassCastException | SizePolicyException | CodecException e) {
+//						e.printStackTrace();
+//					}
 				}
 			};
 			final EndpointConfig config = Endpoint
@@ -365,6 +393,21 @@ public class MainFrame {
 			return;
 		sendUserInfoMessage("join=" + no.getId());
 		btnJoin.setEnabled(false);
+		
+		TestTunnel snd = new TestTunnel();
+		snd.tid = 0;
+		snd.tname = "yuexiaodong";
+		snd.tdata = Octets.wrap("yuexiaodon's messsage!".getBytes());
+		try {
+			limax.endpoint.providerendpoint.Tunnel tunnel = new limax.endpoint.providerendpoint.Tunnel();
+			tunnel.providerid = 100;
+			tunnel.sessionid = endpointManager.getSessionId();
+			tunnel.label = snd.getType();
+			tunnel.data = snd.marshal(new OctetsStream());
+			tunnel.send(endpointManager.getTransport());
+		} catch (InstantiationException | ClassCastException | SizePolicyException | CodecException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void sendUserInfoMessage(String msg) {

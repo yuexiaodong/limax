@@ -68,6 +68,11 @@ class ProviderTransportImpl implements ProviderTransport, SupportStateCheck, Sup
 	Transport getRelativeTransport() {
 		return relativeTransport;
 	}
+	
+	@Override
+	public Transport getToSwictherTransport() {
+		return getRelativeTransport();
+	}
 
 	@Override
 	public long getSessionId() {
