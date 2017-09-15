@@ -10,7 +10,7 @@
             outputBufferSize="8192" remoteIp="127.0.0.1"
             remotePort="10100" type="client"/>
     </Provider>
-    <Trace console="true" level="WARN" outDir="./trace"
+    <Trace console="true" level="DEBUG" outDir="./trace"
         rotateHourOfDay="6" rotateMinute="0"/>
     <Zdb autoKeyInitValue="0" autoKeyStep="4096"
         checkpointPeriod="60000" corePoolSize="30" dbhome="zdb"

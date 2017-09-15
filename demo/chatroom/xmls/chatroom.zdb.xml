@@ -22,4 +22,12 @@
 
 	<table name="roominfocache" key="long" value="any:chatviews.ChatRoom"
 		persistence="MEMORY" />
+
+	<!--any type-->
+	<xbean name="OnlinerefreshFuture">
+		<variable name="files" type="any:java.io.File" />
+		<variable name="nickname" type="any:Object" />
+		<variable name="furvec" type="any:java.util.concurrent.ScheduledFuture&lt;?>" />
+	</xbean>
+	<table name="futures" key="long" value="OnlinerefreshFuture" persistence="MEMORY"/>
 </zdb>
