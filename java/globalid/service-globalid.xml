@@ -13,7 +13,7 @@
         rotateHourOfDay="6" rotateMinute="0"/>
     <Manager autoStartListen="true" backlog="32"
         checkOutputBuffer="false"
-        className="limax.globalid.GlobalMain$GlobalIdServer"
+        className="limax.globalid.Main$GlobalIdServer"
         classSingleton="getInstance"
         defaultStateClass="limax.globalid.states.GlobalIdServer"
         inputBufferSize="16384" localPort="10210" maxSize="0"

@@ -20,30 +20,30 @@ public final class ProcedureRequestName implements Procedure {
 		Short gid = table.Namegroups.update(gn.grp);
 		if (gid == null) {
 			synchronized (lock) {
-				if (GlobalMain.maxgroupid == Short.MAX_VALUE) {
+				if (Main.maxgroupid == Short.MAX_VALUE) {
 					Trace.fatal("maxgroupid overflow.");
 					response.status = NameResponse.REJECT;
 					return;
 				}
-				gid = ++GlobalMain.maxgroupid;
+				gid = ++Main.maxgroupid;
 			}
 			table.Maxgroupid.delete(0);
 			table.Maxgroupid.insert(0, gid);
 			table.Namegroups.delete(gn.grp);
 			table.Namegroups.insert(gn.grp, gid);
-			GlobalMain.groupids.put(gn.grp, gid);
+			Main.groupids.put(gn.grp, gid);
 		}
 		if (test(gn, response.serial, gid)) {
 			response.status = NameResponse.DUPLICATE;
 		} else {
-			GlobalMain.setCreate(response.serial);
+			Main.setCreate(response.serial);
 			response.status = NameResponse.OK;
 		}
 	}
 
 	private void delete(GroupName gn, NameResponse response) {
-		if (test(gn, response.serial, GlobalMain.groupids.get(gn.grp))) {
-			GlobalMain.setDelete(response.serial);
+		if (test(gn, response.serial, Main.groupids.get(gn.grp))) {
+			Main.setDelete(response.serial);
 			response.status = NameResponse.OK;
 		} else {
 			response.status = NameResponse.NOTEXISTS;
@@ -51,12 +51,12 @@ public final class ProcedureRequestName implements Procedure {
 	}
 
 	private void test(GroupName gn, NameResponse response) {
-		response.status = test(gn, response.serial, GlobalMain.groupids.get(gn.grp)) ? NameResponse.OK
+		response.status = test(gn, response.serial, Main.groupids.get(gn.grp)) ? NameResponse.OK
 				: NameResponse.NOTEXISTS;
 	}
 
 	private boolean test(GroupName gn, long serial, Short gid) {
-		return !GlobalMain.isDelete(serial) && (GlobalMain.isCreate(serial)
+		return !Main.isDelete(serial) && (Main.isCreate(serial)
 				|| gid != null && table.Names.select(new cbean.NameKey(gid, gn.name)) != null);
 	}
 
@@ -67,9 +67,9 @@ public final class ProcedureRequestName implements Procedure {
 		int type;
 		if (request.type > 0) {
 			try {
-				response.serial = GlobalMain.lock(request.gn, request.serial, rpc.getTransport());
+				response.serial = Main.lock(request.gn, request.serial, rpc.getTransport());
 				type = request.type;
-			} catch (GlobalMain.IgnoreOperationException e) {
+			} catch (Main.IgnoreOperationException e) {
 				return false;
 			} catch (XDeadlock e) {
 				response.status = NameResponse.DEADLOCK;
@@ -77,7 +77,7 @@ public final class ProcedureRequestName implements Procedure {
 			}
 		} else {
 			type = -request.type;
-			request.gn = GlobalMain.getGroupName(response.serial = request.serial);
+			request.gn = Main.getGroupName(response.serial = request.serial);
 		}
 		switch (type) {
 		case NameRequest.CREATE:
