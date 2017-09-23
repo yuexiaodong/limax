@@ -8,15 +8,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import limax.codec.CodecException;
+import limax.codec.Octets;
 import limax.net.ClientListener;
 import limax.net.Config;
 import limax.net.Engine;
 import limax.net.Manager;
+import limax.net.SizePolicyException;
 import limax.net.State;
 import limax.net.StateTransport;
 import limax.net.Transport;
 import limax.provider.GlobalId;
 import limax.provider.providerglobalid.EndorseNames;
+import limax.provider.providerglobalid.GobalDispatch;
 import limax.provider.providerglobalid.RequestId;
 import limax.provider.providerglobalid.RequestName;
 import limax.provider.states.GlobalIdClient;
@@ -219,6 +223,23 @@ public final class GlobalIdListener implements ClientListener {
 		} finally {
 			current.set(null);
 		}
+	}
+	
+	/**
+	 * 发数据给global
+	 * @param pvid
+	 * @param label 数据类型标识
+	 * @param data
+	 * @return
+	 */
+	public boolean sendOctets(int pvid, int label, Octets data) {
+		try {
+			new GobalDispatch(pvid, label, data).send(transport);
+		} catch (InstantiationException | ClassCastException | SizePolicyException | CodecException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public State getDefaultState() {

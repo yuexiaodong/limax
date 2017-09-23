@@ -53,4 +53,10 @@
 	<protocol name="KeepAlive" type="53" maxsize="8">
 		<variable name="millisecond" type="long" />
 	</protocol>
+	
+	<protocol name="GobalDispatch" type="54" maxsize="0">
+		<variable name="providerid" type="int" />
+		<variable name="label" type="int" />
+		<variable name="data" type="binary" />	
+	</protocol>
 </namespace>

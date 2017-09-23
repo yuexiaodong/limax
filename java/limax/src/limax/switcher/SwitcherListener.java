@@ -920,7 +920,7 @@ public final class SwitcherListener implements ServerListener {
 		});
 	}
 
-	public void process(limax.provider.providerendpoint.Tunnel p) { //服务器的隧道数据直接转给客户端
+	public void process(limax.provider.providerendpoint.Tunnel p) { //provider转给客户端的隧道数据直接转给客户端
 		Trace.log(Trace.INFO, "receive limax.provider.providerendpoint.Tunnel!!");
 		forwardTunnel(p.sessionid, p.providerid, p.label, p.data);
 	}

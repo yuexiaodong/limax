@@ -1,6 +1,8 @@
 package limax.provider;
 
+import limax.codec.Octets;
 import limax.provider.globalid.GlobalIdListener;
+import limax.provider.providerglobalid.GobalDispatch;
 import limax.providerglobalid.GroupName;
 
 public final class GlobalId {
@@ -47,5 +49,9 @@ public final class GlobalId {
 
 	public static long getTimeout() {
 		return timeout;
+	}
+	
+	public static boolean dispatch(int pvid, int label, Octets data) {
+		return GlobalIdListener.getInstance().sendOctets(pvid,label, data);
 	}
 }
