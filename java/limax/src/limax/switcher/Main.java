@@ -1,6 +1,7 @@
 package limax.switcher;
 
 import limax.defines.SessionType;
+import limax.kcp.KCPManager;
 import limax.xmlconfig.Service;
 
 public class Main {
@@ -30,6 +31,14 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		final String netioxml = args.length == 0 ? "service-switcher.xml" : args[0];
 		limax.provider.states.ProviderClient.getDefaultState();
+		Service.addRunAfterEngineStartTask(()->{
+			//初始化KCP
+			KCPManager.getInstance().init();
+		});
+		Service.addRunAfterEngineStopTask(()->{
+			//关闭KCP
+			KCPManager.getInstance().stop();
+		});
 		Service.run(netioxml);
 	}
 }
