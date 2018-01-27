@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.29-bin.jar"/>
-	<classpathentry kind="lib" path="lib/netty-all-4.1.9.Final.jar"/>
+	<classpathentry kind="lib" path="lib/netty-all-4.1.19.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

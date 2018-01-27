@@ -11,7 +11,7 @@
 
 	<target name="xmlgen">
 		<mkdir dir="${build}" />
-		<javac encoding="UTF-8" srcdir="${src}" includes="limax/xmlgen/**"
+		<javac source="1.6" target="1.6" encoding="UTF-8" srcdir="${src}" includes="limax/xmlgen/**"
 			destdir="${build}" debug="true" debuglevel="lines,source"
 			includeantruntime="false">
 			<compilerarg line="-Xlint:unchecked" />
